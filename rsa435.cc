@@ -71,11 +71,11 @@ int main() {
 
   // Variables 
   std::fstream datafile; // file used to save p and q 
-	/* The library throws `const char *' error messages when things go
-	 * wrong.  It's a good idea to catch them using a `try' block like this
-	 * one.  Your C++ compiler might need a command-line option to compile
-	 * code that uses exceptions. */
-	try {
+  /* The library throws `const char *' error messages when things go
+   * wrong.  It's a good idea to catch them using a `try' block like this
+   * one.  Your C++ compiler might need a command-line option to compile
+   * code that uses exceptions. */
+  try {
       
       BigUnsigned p = generate_p(); // Call generate function to get prime number p
       BigUnsigned q = generate_q(); // Call generate function to get prime number q
@@ -107,10 +107,10 @@ int main() {
       datafile.close();
       
       
-	} catch(char const* err) {
-		std::cout << "The library threw an exception:\n"
-			<< err << std::endl;
-	}
+  } catch(char const* err) {
+    std::cout << "The library threw an exception:\n"
+      << err << std::endl;
+  }
 
-	return 0;
+  return 0;
 }
