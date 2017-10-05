@@ -2,14 +2,13 @@
 #include <iostream>
 #include <fstream>
 #include <cassert>
-#include <string>
-#include <sys/stat.h>
 #include "sha256.h"
 // `BigIntegerLibrary.hh' includes all of the library headers
 // This library is from https://mattmccutchen.net/bigint/index.html 
 // The library is not included in the folder for this repository
 #include "BigIntegerLibrary.hh"
 #include "RSA_functions.cpp"
+#include "generate_verify_digitalSignatures.cpp"
 
 int main(int argc, char *argv[]) {
 
