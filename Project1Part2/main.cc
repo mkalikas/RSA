@@ -8,7 +8,6 @@
 #include "sha256.h"
 #include "BigIntegerLibrary.hh"
 
-
 // Parameters are a file name and a length, used for signature length
 // This function reads a file and generates a hash
 std::string read_file(std::string filename = "file.txt") {
