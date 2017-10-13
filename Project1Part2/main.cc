@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstddef>
 #include <fstream>
 #include <cstdio>
 #include <cstdlib>
@@ -8,8 +9,8 @@
 #include "sha256.h"
 #include "BigIntegerLibrary.hh"
 
-// Parameters are a file name and a length, used for signature length
-// This function reads a file and generates a hash
+/// Parameters are a file name and a length, used for signature length
+/// This function reads a file and generates a hash
 std::string read_file(std::string filename = "file.txt") {
   std::ifstream infile(filename.c_str(), std::ios::binary);
   std::streampos begin,end;
@@ -18,7 +19,6 @@ std::string read_file(std::string filename = "file.txt") {
   end = infile.tellg();
   std::streampos length = end-begin; //size of the file in bytes
   infile.seekg (0, infile.beg);
-
   char* memblock = new char[length];
   infile.read (memblock, length); //read the entire file
   memblock[length] = '\0';
@@ -47,7 +47,7 @@ std::string cryptomessage(std::string key_filename, BigInteger base) {
   }
   input_key.close();
 
-  /****** Encrypt/decrypt using the hash using the key ******/
+  /// Encrypt/decrypt using the hash using the key
   return bigUnsignedToString(modexp(base, stringToBigUnsigned(key), stringToBigUnsigned(n)));
 }
 
@@ -59,14 +59,15 @@ void generate_signature(std::string filename) {
   filename = filename+".signed";
   std::string memblock = read_file(filename); // get the contents of the original file as a string
   std::ofstream outfile (filename.c_str(), std::ios::binary);
-  char* content = new char[memblock.length()];
+  char* content = new char[sizeof(memblock.c_str())];
   strcpy(content, memblock.c_str());
-  outfile.write (content, memblock.length()); // writes the contents of the original file to the signed file
+  outfile.write (content, sizeof(memblock.c_str())); // writes the contents of the original file to the signed file
   int sigLength = 1024; // length of the signature
   char* signature = new char[sigLength]; // character array to hold the signature
   signature[sigLength] = '\0'; // add a terminator
   // Turn memblock into a BigInteger
-  BigInteger base = dataToBigInteger(memblock.c_str(), memblock.length(), BigInteger::positive);
+  BigInteger base = dataToBigInteger(memblock.c_str(),
+  sizeof(memblock.c_str()), BigInteger::positive);
   // Make call to cryptomessage to get the decrypted string of memblock
   std::string decrypt = cryptomessage("d_n.txt", base); // pass the file holding the private key and n
   strcpy(signature, decrypt.c_str()); // copy the decrypted string into the character array
@@ -93,20 +94,28 @@ bool verify_signature(std::string check) {
   //const char* check_array[check.length()];
 //  strcpy(check_array, check.c_str());
   const char* check_array = check.c_str(); // create a character array containing the cstring representation of check
-  char check2[(strlen(check_array) - 1024)]; // a charater array the size of the content
-  std::cout << check2 << "\n";
+  char* check2[std::to_integer(std::byte{check.size()})]; // a charater array the size of the content
+//  std::cout << check_array;
+  //strncpy(check2, check.c_str(), sizeof(check2));
+  strncpy(check2, check_array, sizeof(check2));
+  //memmove(check_array+0, check_array+sizeof(check_array)-1024, 1024);
   char* sign_array[1024]; // a character array the size of the signature
-  strncpy(check2, check.c_str(), sizeof(check2));
+  memcpy()
+  std::cout << check_array << "\n";
+  //std::cout << check2 << "\n";
+  //check.erase(check.begin(), sizeof(check.c_str())-1024); // erase the
+  std::cout << check << "\n";
+ signature
+  //strncpy(check2, check.c_str(), sizeof(check2));
 
-
+  //delete [] check2;
 
   //check_array[check.length()-1024] = '\0';
   //strcpy(check_array, check.c_str()); // copy only the lengh of the content into check_array
   //sign.erase(sign.begin()+0, sign.end()-1024); // erases the original from the check to get the signed portion
-  //char* sign_array = new char[1024];
+
 
   //std::cout << sign << "\n";
-  //check.erase(check+sign.length()); // erase the
 
   //std::string signature_encrypt = cryptomessage("e_n.txt", stringToBigInteger(sign)); // String that holds the signature encrypted
   // Compare strings and return if they are equal

@@ -3,7 +3,7 @@ all:
 
 # Implicit rule to compile C++ files.  Modify to your taste.
 %.o: %.cc %.cpp
-	g++ -std=c++14
+	g++ -std=c++1z
 
 # Components of the library.
 library-objects = \
