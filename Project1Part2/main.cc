@@ -55,7 +55,6 @@ std::string cryptomessage(std::string key_filename, BigInteger base) {
 /*
   Takes a string of the name of a file to be read. The file is read by calling the read_file function.
   The input file is modified by adding a signature, decrypted string of the input file's contents, to the end of the original file.
-  Returns the name of the modified input file.
 */
 void generate_signature(std::string filename) {
   filename = filename+".signed";
@@ -67,8 +66,9 @@ void generate_signature(std::string filename) {
   int sigLength = 1024; // length of the signature
   char* signature = new char[sigLength]; // character array to hold the signature
   signature[sigLength] = '\0'; // add a terminator
-  // Make call to cryptomessage to get the decrypted string of memblock
+  // Turn memblock into a BigInteger
   BigInteger base = dataToBigInteger(memblock.c_str(), memblock.length(), BigInteger::positive);
+  // Make call to cryptomessage to get the decrypted string of memblock
   std::string decrypt = cryptomessage("d_n.txt", base); // pass the file holding the private key and n
   strcpy(signature, decrypt.c_str()); // copy the decrypted string into the character array
   outfile.write (signature, sigLength); // write the signature to the file
@@ -79,20 +79,40 @@ void generate_signature(std::string filename) {
 
 }
 
-// Takes two strings as arguments. string for the name of the file to check the signature
+// Takes a string representing the name of the file to be checked
 // Returns true if the document is authentic, and false otherwise.
-bool verify_signature(std::string signed_file) {
-  signed_file = read_file(signed_file); // gets the entire file as a string
-  //signed_file = signed_file+".signed"; //read_file(signed_file); // reads the entire file and signature
-  
-  std::string sign = signed_file;
-  
-  sign.erase(sign.begin(), sign.end()-1024); // erases the original from the signed_file to get the signed portion
-  signed_file.erase(signed_file+sign.length());
-  
-  std::string signature_encrypt = cryptomessage("e_n.txt", stringToBigInteger(sign)); // String that holds the signature encrypted
+bool verify_signature(std::string check) {
+  // sets check to the entire contents of the file represented as a string
+  // check contains the entire file contents and signature, i.e this is expected to be the original content plus the signature
+  check = read_file(check);
+
+  // create a new string named sign and initialize it to check
+  // this string will be used to separate the content from the signature
+  //std::string sign(check);
+  ////unsigned char buffer[check.length()];
+  //std::copy(check.c_str(), 1024, )
+  //const char* check_array[check.length()];
+//  strcpy(check_array, check.c_str());
+  const char* check_array = check.c_str(); // create a character array containing the cstring representation of check
+  char check2[(strlen(check_array) - 1024)]; // a charater array the size of the content
+  std::cout << check2 << "\n";
+  char* sign_array[1024]; // a character array the size of the signature
+  strncpy(check2, check.c_str(), sizeof(check2));
+
+
+
+  //check_array[check.length()-1024] = '\0';
+  //strcpy(check_array, check.c_str()); // copy only the lengh of the content into check_array
+  //sign.erase(sign.begin()+0, sign.end()-1024); // erases the original from the check to get the signed portion
+  //char* sign_array = new char[1024];
+
+  //std::cout << sign << "\n";
+  //check.erase(check+sign.length()); // erase the
+
+  //std::string signature_encrypt = cryptomessage("e_n.txt", stringToBigInteger(sign)); // String that holds the signature encrypted
   // Compare strings and return if they are equal
-  return (signature_encrypt.compare(sign) == true); // compares the signed_file to the encrypted version of it and returns if they are the same
+  //return (signature_encrypt.compare(sign) == true); // compares the check to the encrypted version of it and returns if they are the same
+  return true;
 }
 
 int main(int argc, char *argv[])
