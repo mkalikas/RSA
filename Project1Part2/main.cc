@@ -11,19 +11,18 @@
 /// Parameters are a file name and a length, used for signature length
 /// This function reads a file and generates a hash
 std::string read_file(std::string filename = "file.txt") {
-  std::ifstream infile(filename.c_str(), std::ios::binary);
-  std::streampos begin,end;
-  begin = infile.tellg();
-  infile.seekg (0, infile.end);
-  end = infile.tellg();
-  std::streampos length = end-begin; //size of the file in bytes
-  infile.seekg (0, infile.beg);
-  char* memblock = new char[length];
-  infile.read (memblock, length); //read the entire file
-  memblock[length] = '\0';
+  std::ifstream infile(filename.c_str(), std::ios::binary|std::ios::ate);
+  std::streampos size;
+
+  size = infile.tellg();
+  char* memblock = new char[size];
+  infile.seekg(0, std::ios::beg);
+
+  infile.read (memblock, size); //read the entire file
   infile.close();
   std::string str(memblock);
-
+  std::cout << size << " " << "\n";
+  std::cout << memblock << "\n";
   delete [] memblock;
   return str; // turns memblock into a string; This is the entire original file as a string representation
 
@@ -32,7 +31,7 @@ std::string read_file(std::string filename = "file.txt") {
 /*
   This function inputs a file that has the contents.
   Either the file containing the secret key or public key will be passed to this function.
-  It also takes in the hash of a message.
+  It also takes in the sha256 hash of a message.
   Returns a string of the encrypted/decrypted message.
 */
 std::string cryptomessage(std::string key_filename, BigInteger base) {
@@ -58,6 +57,8 @@ void generate_signature(std::string filename) {
   filename = filename+".signed";
   std::string memblock = read_file(filename); // get the contents of the original file as a string
   std::ofstream outfile (filename.c_str(), std::ios::binary);
+  size_t s = memblock.length();
+  std::cout << s << "\n";
   char* content = new char[sizeof(memblock.c_str())];
   strcpy(content, memblock.c_str());
   outfile.write (content, sizeof(memblock.c_str())); // writes the contents of the original file to the signed file
