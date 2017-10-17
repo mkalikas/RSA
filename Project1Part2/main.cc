@@ -1,5 +1,4 @@
 #include <iostream>
-#include <cstddef>
 #include <fstream>
 #include <cstdio>
 #include <cstdlib>
@@ -94,18 +93,18 @@ bool verify_signature(std::string check) {
   //const char* check_array[check.length()];
 //  strcpy(check_array, check.c_str());
   const char* check_array = check.c_str(); // create a character array containing the cstring representation of check
-  char* check2[std::to_integer(std::byte{check.size()})]; // a charater array the size of the content
-//  std::cout << check_array;
+  char check2[sizeof(check_array)]; // a charater array the size of the content
+  std::cout << check_array;
+  //std::cout << "\n" << sizeof(check_array) << " " << sizeof(check2);
   //strncpy(check2, check.c_str(), sizeof(check2));
   strncpy(check2, check_array, sizeof(check2));
   //memmove(check_array+0, check_array+sizeof(check_array)-1024, 1024);
   char* sign_array[1024]; // a character array the size of the signature
-  memcpy()
+  //memcpy();
   std::cout << check_array << "\n";
   //std::cout << check2 << "\n";
   //check.erase(check.begin(), sizeof(check.c_str())-1024); // erase the
   std::cout << check << "\n";
- signature
   //strncpy(check2, check.c_str(), sizeof(check2));
 
   //delete [] check2;
