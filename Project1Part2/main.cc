@@ -11,7 +11,7 @@
 /// Parameters are a file name and a length, used for signature length
 /// This function reads a file and generates a hash
 std::string read_file(std::string filename = "file.txt") {
-  std::ifstream infile(filename.c_str(), std::ios::binary|std::ios::ate);
+  std::ifstream infile(filename.c_str(), std::ios::binary | std::ios::ate);
   std::streampos size;
 
   size = infile.tellg();
@@ -57,17 +57,17 @@ void generate_signature(std::string filename) {
   filename = filename+".signed";
   std::string memblock = read_file(filename); // get the contents of the original file as a string
   std::ofstream outfile (filename.c_str(), std::ios::binary);
-  size_t s = memblock.length();
+  size_t s = strlen(memblock.c_str()) + 1;
   std::cout << s << "\n";
-  char* content = new char[sizeof(memblock.c_str())];
+  char* content = new char[s];
   strcpy(content, memblock.c_str());
-  outfile.write (content, sizeof(memblock.c_str())); // writes the contents of the original file to the signed file
+  outfile.write (content, s); // writes the contents of the original file to the signed file
   int sigLength = 1024; // length of the signature
   char* signature = new char[sigLength]; // character array to hold the signature
   signature[sigLength] = '\0'; // add a terminator
   // Turn memblock into a BigInteger
   BigInteger base = dataToBigInteger(memblock.c_str(),
-  sizeof(memblock.c_str()), BigInteger::positive);
+  s, BigInteger::positive);
   // Make call to cryptomessage to get the decrypted string of memblock
   std::string decrypt = cryptomessage("d_n.txt", base); // pass the file holding the private key and n
   strcpy(signature, decrypt.c_str()); // copy the decrypted string into the character array
