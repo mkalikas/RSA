@@ -2,8 +2,8 @@
 #include <fstream>
 #include <cstdio>
 #include <cstdlib>
-#include <string>
 #include <cstring>
+#include <string>
 #include <sys/stat.h>
 #include "sha256.h"
 #include "BigIntegerLibrary.hh"
@@ -22,7 +22,7 @@ std::string read_file(std::string filename = "file.txt") {
   infile.close();
   std::string str(memblock);
   std::cout << size << " " << "\n";
-  std::cout << memblock << "\n";
+  std::cout << str << "\n";
   delete [] memblock;
   return str; // turns memblock into a string; This is the entire original file as a string representation
 
