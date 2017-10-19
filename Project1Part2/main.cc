@@ -10,12 +10,10 @@
 
 /// Parameters are a file name and a length, used for signature length
 /// This function reads the contents of an entire file
-std::string read_file(std::string filename = "file.txt") {
+void read_file(std::string filename = "file.txt") {
   std::ifstream infile(filename.c_str(), std::ios::binary | std::ios::ate);
   std::streampos size;
   size = infile.tellg();
-  // Create a NumberlikeArray object to hold the file
-  //NumberlikeArray<char> memblock = NumberlikeArray<char>(size);
 
   infile.seekg(0, std::ios::beg);
   char* memblock = new char[size];
@@ -23,27 +21,7 @@ std::string read_file(std::string filename = "file.txt") {
   memblock[size] = '\0';
 
   infile.close();
-  std::string str(memblock);
-  std::cout << size << " " << "\n";
-  //std::cout << str << "\n";
   delete [] memblock;
-  return str; // turns memblock into a string; This is the entire original file as a string representation
-/*  size = infile.tellg();
-  // Create a NumberlikeArray object to hold the file
-  //NumberlikeArray<char> memblock = NumberlikeArray<char>(size);
-
-  //char* memblock = new char[size];
-  infile.seekg(0, std::ios::beg);
-
-  infile.read (memblock, size); //read the entire file
-  infile.close();
-  std::string str(memblock);
-  std::cout << size << " " << "\n";
-  //std::cout << str << "\n";
-  delete [] memblock;
-  return str; // turns memblock into a string; This is the entire original file as a string representation
-  */
-
 }
 
 /*
@@ -79,13 +57,8 @@ void generate_signature(std::string filename) {
   infile.seekg(0, std::ios::beg);
   char* memblock = new char[size];
   infile.read (memblock, size); //read the entire file
-  //memblock[size] = '\0';
 
   infile.close();
-  //std::string str(memblock);
-  //std::cout << size << " " << "\n";
-  //std::cout << str << "\n";
-  //delete [] memblock;
   filename = filename+".signed";
   std::ofstream outfile(filename.c_str(), std::ios::binary);
   outfile.write(memblock, size); // writes the contents of the original file to the signed file
@@ -98,6 +71,7 @@ void generate_signature(std::string filename) {
   char* signature = new char[decrypt.length() + 1]; // character array to hold the signature
   strcpy(signature, decrypt.c_str()); // copy the decrypted string into the character array
   outfile.write(signature, decrypt.length()); // write the signature to the file
+  std::cout << decrypt.length() << " " << decrypt << "\n";
   outfile.close();
   delete [] memblock;
   //delete [] content;
@@ -110,7 +84,7 @@ void generate_signature(std::string filename) {
 bool verify_signature(std::string check) {
   // sets check to the entire contents of the file represented as a string
   // check contains the entire file contents and signature, i.e this is expected to be the original content plus the signature
-  check = read_file(check);
+  //check = read_file(check);
 
   // create a new string named sign and initialize it to check
   // this string will be used to separate the content from the signature
@@ -137,7 +111,7 @@ bool verify_signature(std::string check) {
   //delete [] check2;
 
   //check_array[check.length()-1024] = '\0';
-  //strcpy(check_array, check.c_str()); // copy only the lengh of the content into check_array
+  //strcpy(check_array, check.c_str()); // copy only the length of the content into check_array
   //sign.erase(sign.begin()+0, sign.end()-1024); // erases the original from the check to get the signed portion
 
 
