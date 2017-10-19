@@ -9,22 +9,40 @@
 #include "BigIntegerLibrary.hh"
 
 /// Parameters are a file name and a length, used for signature length
-/// This function reads a file and generates a hash
+/// This function reads the contents of an entire file
 std::string read_file(std::string filename = "file.txt") {
   std::ifstream infile(filename.c_str(), std::ios::binary | std::ios::ate);
   std::streampos size;
-
   size = infile.tellg();
+  // Create a NumberlikeArray object to hold the file
+  //NumberlikeArray<char> memblock = NumberlikeArray<char>(size);
+
+  infile.seekg(0, std::ios::beg);
   char* memblock = new char[size];
+  infile.read (memblock, size); //read the entire file
+  memblock[size] = '\0';
+
+  infile.close();
+  std::string str(memblock);
+  std::cout << size << " " << "\n";
+  //std::cout << str << "\n";
+  delete [] memblock;
+  return str; // turns memblock into a string; This is the entire original file as a string representation
+/*  size = infile.tellg();
+  // Create a NumberlikeArray object to hold the file
+  //NumberlikeArray<char> memblock = NumberlikeArray<char>(size);
+
+  //char* memblock = new char[size];
   infile.seekg(0, std::ios::beg);
 
   infile.read (memblock, size); //read the entire file
   infile.close();
   std::string str(memblock);
   std::cout << size << " " << "\n";
-  std::cout << str << "\n";
+  //std::cout << str << "\n";
   delete [] memblock;
   return str; // turns memblock into a string; This is the entire original file as a string representation
+  */
 
 }
 
@@ -54,27 +72,35 @@ std::string cryptomessage(std::string key_filename, BigInteger base) {
   The input file is modified by adding a signature, decrypted string of the input file's contents, to the end of the original file.
 */
 void generate_signature(std::string filename) {
+  //std::string memblock = read_file(filename); // get the contents of the original file as a string
+  std::ifstream infile(filename.c_str(), std::ios::binary | std::ios::ate);
+  std::streampos size;
+  size = infile.tellg();
+  infile.seekg(0, std::ios::beg);
+  char* memblock = new char[size];
+  infile.read (memblock, size); //read the entire file
+  //memblock[size] = '\0';
+
+  infile.close();
+  //std::string str(memblock);
+  //std::cout << size << " " << "\n";
+  //std::cout << str << "\n";
+  //delete [] memblock;
   filename = filename+".signed";
-  std::string memblock = read_file(filename); // get the contents of the original file as a string
-  std::ofstream outfile (filename.c_str(), std::ios::binary);
-  size_t s = strlen(memblock.c_str()) + 1;
-  std::cout << s << "\n";
-  char* content = new char[s];
-  strcpy(content, memblock.c_str());
-  outfile.write (content, s); // writes the contents of the original file to the signed file
-  int sigLength = 1024; // length of the signature
-  char* signature = new char[sigLength]; // character array to hold the signature
-  signature[sigLength] = '\0'; // add a terminator
+  std::ofstream outfile(filename.c_str(), std::ios::binary);
+  outfile.write(memblock, size); // writes the contents of the original file to the signed file
   // Turn memblock into a BigInteger
-  BigInteger base = dataToBigInteger(memblock.c_str(),
-  s, BigInteger::positive);
+  BigInteger base = dataToBigInteger(memblock,
+  size, BigInteger::positive);
   // Make call to cryptomessage to get the decrypted string of memblock
   std::string decrypt = cryptomessage("d_n.txt", base); // pass the file holding the private key and n
+  //int sigLength = 1024; // length of the signature
+  char* signature = new char[decrypt.length() + 1]; // character array to hold the signature
   strcpy(signature, decrypt.c_str()); // copy the decrypted string into the character array
-  outfile.write (signature, sigLength); // write the signature to the file
+  outfile.write(signature, decrypt.length()); // write the signature to the file
   outfile.close();
-  //delete [] memblock;
-  delete [] content;
+  delete [] memblock;
+  //delete [] content;
   delete [] signature;
 
 }
