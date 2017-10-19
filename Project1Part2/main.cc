@@ -52,6 +52,8 @@ std::string cryptomessage(std::string key_filename, BigInteger base) {
 void generate_signature(std::string filename) {
   //std::string memblock = read_file(filename); // get the contents of the original file as a string
   std::ifstream infile(filename.c_str(), std::ios::binary | std::ios::ate);
+  while(!infile.is_open())
+    return;
   std::streampos size;
   size = infile.tellg();
   infile.seekg(0, std::ios::beg);
