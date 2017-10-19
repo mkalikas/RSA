@@ -49,11 +49,12 @@ std::string cryptomessage(std::string key_filename, BigInteger base) {
   Takes a string of the name of a file to be read. The file is read by calling the read_file function.
   The input file is modified by adding a signature, decrypted string of the input file's contents, to the end of the original file.
 */
-void generate_signature(std::string filename) {
-  //std::string memblock = read_file(filename); // get the contents of the original file as a string
+std::size_t generate_signature(std::string filename) {
+  //\DELETE std::string memblock = read_file(filename); // get the contents of the original file as a string
+  std::size_t sigLength;
   std::ifstream infile(filename.c_str(), std::ios::binary | std::ios::ate);
   while(!infile.is_open())
-    return;
+    return 0;
   std::streampos size;
   size = infile.tellg();
   infile.seekg(0, std::ios::beg);
@@ -69,16 +70,17 @@ void generate_signature(std::string filename) {
   size, BigInteger::positive);
   // Make call to cryptomessage to get the decrypted string of memblock
   std::string decrypt = cryptomessage("d_n.txt", base); // pass the file holding the private key and n
-  //int sigLength = 1024; // length of the signature
+  //\DELETE int sigLength = 1024; // length of the signature
   char* signature = new char[decrypt.length() + 1]; // character array to hold the signature
   strcpy(signature, decrypt.c_str()); // copy the decrypted string into the character array
   outfile.write(signature, decrypt.length()); // write the signature to the file
-  std::cout << decrypt.length() << " " << decrypt << "\n";
+  std::cout << strlen(signature) << "\n";
   outfile.close();
+  sigLength = strlen(signature);
   delete [] memblock;
-  //delete [] content;
+  //\DELETE delete [] content;
   delete [] signature;
-
+  return sigLength;
 }
 
 // Takes a string representing the name of the file to be checked
@@ -94,7 +96,7 @@ bool verify_signature(std::string check) {
   ////unsigned char buffer[check.length()];
   //std::copy(check.c_str(), 1024, )
   //const char* check_array[check.length()];
-//  strcpy(check_array, check.c_str());
+  //strcpy(check_array, check.c_str());
   const char* check_array = check.c_str(); // create a character array containing the cstring representation of check
   char check2[sizeof(check_array)]; // a charater array the size of the content
   std::cout << check_array;
@@ -103,7 +105,6 @@ bool verify_signature(std::string check) {
   strncpy(check2, check_array, sizeof(check2));
   //memmove(check_array+0, check_array+sizeof(check_array)-1024, 1024);
   char* sign_array[1024]; // a character array the size of the signature
-  //memcpy();
   std::cout << check_array << "\n";
   //std::cout << check2 << "\n";
   //check.erase(check.begin(), sizeof(check.c_str())-1024); // erase the
@@ -129,8 +130,8 @@ int main(int argc, char *argv[])
 {
   switch (*argv[1]) {
     case 's':
-      generate_signature(argv[2]);
-      break;
+      return static_cast<std::size_t>(generate_signature(argv[2]));
+      //break;
     case 'v':
       if(verify_signature(argv[2]) == true)
         std::cout << "The document is authentic\n";
