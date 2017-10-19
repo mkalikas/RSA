@@ -49,12 +49,12 @@ std::string cryptomessage(std::string key_filename, BigInteger base) {
   Takes a string of the name of a file to be read. The file is read by calling the read_file function.
   The input file is modified by adding a signature, decrypted string of the input file's contents, to the end of the original file.
 */
-std::size_t generate_signature(std::string filename) {
+void generate_signature(std::string filename) {
   //\DELETE std::string memblock = read_file(filename); // get the contents of the original file as a string
-  std::size_t sigLength;
+  //\std::size_t sigLength;
   std::ifstream infile(filename.c_str(), std::ios::binary | std::ios::ate);
   while(!infile.is_open())
-    return 0;
+    return;
   std::streampos size;
   size = infile.tellg();
   infile.seekg(0, std::ios::beg);
@@ -76,11 +76,11 @@ std::size_t generate_signature(std::string filename) {
   outfile.write(signature, decrypt.length()); // write the signature to the file
   std::cout << strlen(signature) << "\n";
   outfile.close();
-  sigLength = strlen(signature);
+  //\sigLength = strlen(signature);
   delete [] memblock;
   //\DELETE delete [] content;
   delete [] signature;
-  return sigLength;
+  //\return sigLength;
 }
 
 // Takes a string representing the name of the file to be checked
@@ -130,9 +130,9 @@ int main(int argc, char *argv[])
 {
   switch (*argv[1]) {
     case 's':
-      return static_cast<std::size_t>(generate_signature(argv[2]));
-      //\ Maybe output length instead 
-      //break;
+      //\return static_cast<std::size_t>(generate_signature(argv[2]));
+      generate_signature(argv[2]);
+      break;
     case 'v':
       if(verify_signature(argv[2]) == true)
         std::cout << "The document is authentic\n";
