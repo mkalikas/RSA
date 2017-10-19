@@ -131,6 +131,7 @@ int main(int argc, char *argv[])
   switch (*argv[1]) {
     case 's':
       return static_cast<std::size_t>(generate_signature(argv[2]));
+      //\ Maybe output length instead 
       //break;
     case 'v':
       if(verify_signature(argv[2]) == true)
