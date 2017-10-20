@@ -10,18 +10,19 @@
 
 /// Parameters are a file name and a length, used for signature length
 /// This function reads the contents of an entire file
-void read_file(std::string filename = "file.txt") {
+std::string read_file(std::string filename = "file.txt") {
   std::ifstream infile(filename.c_str(), std::ios::binary | std::ios::ate);
   std::streampos size;
   size = infile.tellg();
 
   infile.seekg(0, std::ios::beg);
-  char* memblock = new char[size];
+  char* memblock = new char[static_cast<size_t>(size) + 1];
   infile.read (memblock, size); //read the entire file
   memblock[size] = '\0';
-
+  std::string str(memblock);
   infile.close();
   delete [] memblock;
+  return str;
 }
 
 /*
@@ -46,8 +47,9 @@ std::string cryptomessage(std::string key_filename, BigInteger base) {
 }
 
 /*
-  Takes a string of the name of a file to be read. The file is read by calling the read_file function.
-  The input file is modified by adding a signature, decrypted string of the input file's contents, to the end of the original file.
+  The string passed is a filename that is read into a character array.
+  The array is passed into the cryptomessage function.
+  The signature is generated and written to a new file that is the name of the original file with .signature extension
 */
 void generate_signature(std::string filename) {
   //\DELETE std::string memblock = read_file(filename); // get the contents of the original file as a string
@@ -60,87 +62,74 @@ void generate_signature(std::string filename) {
   infile.seekg(0, std::ios::beg);
   char* memblock = new char[size];
   infile.read (memblock, size); //read the entire file
-
+  memblock[size] = '\0';
+  std::string base(memblock);
+  base = sha256(base);
   infile.close();
+  std::cout << base;
   filename = filename+".signed";
   std::ofstream outfile(filename.c_str(), std::ios::binary);
-  outfile.write(memblock, size); // writes the contents of the original file to the signed file
-  // Turn memblock into a BigInteger
-  BigInteger base = dataToBigInteger(memblock,
-  size, BigInteger::positive);
+  //\Skip for now Writes the contents of the original file to the signed file
+  outfile.write(memblock, size);
   // Make call to cryptomessage to get the decrypted string of memblock
-  std::string decrypt = cryptomessage("d_n.txt", base); // pass the file holding the private key and n
-  //\DELETE int sigLength = 1024; // length of the signature
-  char* signature = new char[decrypt.length() + 1]; // character array to hold the signature
+  std::string decrypt = cryptomessage("d_n.txt", stringToBigInteger(base)); // pass the file holding the private key and n
+  char* signature = new char[decrypt.length()]; // character array to hold the signature
   strcpy(signature, decrypt.c_str()); // copy the decrypted string into the character array
   outfile.write(signature, decrypt.length()); // write the signature to the file
-  std::cout << strlen(signature) << "\n";
   outfile.close();
+  //std::ofstream out
+
   //\sigLength = strlen(signature);
   delete [] memblock;
-  //\DELETE delete [] content;
   delete [] signature;
   //\return sigLength;
 }
 
-// Takes a string representing the name of the file to be checked
-// Returns true if the document is authentic, and false otherwise.
-bool verify_signature(std::string check) {
+/*
+ Takes two strings, one representing the name of the file to be checked and the second of the signature of the contents.
+  Returns true if the document is authentic, and false otherwise.
+  If false, encrypting signature will not be the same as the check file to be read.
+*/
+bool verify_signature(std::string check, std::string signature) {
   // sets check to the entire contents of the file represented as a string
-  // check contains the entire file contents and signature, i.e this is expected to be the original content plus the signature
-  //check = read_file(check);
-
-  // create a new string named sign and initialize it to check
-  // this string will be used to separate the content from the signature
-  //std::string sign(check);
-  ////unsigned char buffer[check.length()];
-  //std::copy(check.c_str(), 1024, )
-  //const char* check_array[check.length()];
-  //strcpy(check_array, check.c_str());
-  const char* check_array = check.c_str(); // create a character array containing the cstring representation of check
-  char check2[sizeof(check_array)]; // a charater array the size of the content
-  std::cout << check_array;
-  //std::cout << "\n" << sizeof(check_array) << " " << sizeof(check2);
-  //strncpy(check2, check.c_str(), sizeof(check2));
-  strncpy(check2, check_array, sizeof(check2));
-  //memmove(check_array+0, check_array+sizeof(check_array)-1024, 1024);
-  char* sign_array[1024]; // a character array the size of the signature
-  std::cout << check_array << "\n";
-  //std::cout << check2 << "\n";
-  //check.erase(check.begin(), sizeof(check.c_str())-1024); // erase the
-  std::cout << check << "\n";
-  //strncpy(check2, check.c_str(), sizeof(check2));
-
-  //delete [] check2;
-
-  //check_array[check.length()-1024] = '\0';
-  //strcpy(check_array, check.c_str()); // copy only the length of the content into check_array
-  //sign.erase(sign.begin()+0, sign.end()-1024); // erases the original from the check to get the signed portion
-
-
-  //std::cout << sign << "\n";
-
-  //std::string signature_encrypt = cryptomessage("e_n.txt", stringToBigInteger(sign)); // String that holds the signature encrypted
+  check = read_file(check); // set check to the file read as a string
+  //\std::cout << check << "\n";
+  // Create a new string named sign by passing signature
+  std::ifstream infile2(signature.c_str());
+  std::getline(infile2, signature, '\0');
+  infile2.close();
+  //\signature = read_file(signature); // set signature to the file read as a string
+  //\std::cout << signature << "\n" << "\n";
+//  BigInteger base = dataToBigInteger(memblock,
+  //size, BigInteger::positive);
+  std::string signature_encrypt = cryptomessage("e_n.txt", stringToBigInteger(signature)); // String that holds the signature encrypted
+  std::cout << signature_encrypt << "\n";
+//  std::string content_encrypt = cryptomessage("d_n.txt", )
   // Compare strings and return if they are equal
-  //return (signature_encrypt.compare(sign) == true); // compares the check to the encrypted version of it and returns if they are the same
-  return true;
+  return (signature_encrypt.compare(signature) == true); // compares the check to the encrypted version of it and returns if they are the same
 }
 
 int main(int argc, char *argv[])
 {
-  switch (*argv[1]) {
-    case 's':
-      //\return static_cast<std::size_t>(generate_signature(argv[2]));
-      generate_signature(argv[2]);
-      break;
-    case 'v':
-      if(verify_signature(argv[2]) == true)
-        std::cout << "The document is authentic\n";
-        else
-          std::cout << "The document is modified\n";
-    default:
-      return 0;
+  try {
+    switch (*argv[1]) {
+      case 's':
+        //\return static_cast<std::size_t>(generate_signature(argv[2]));
+        generate_signature(argv[2]);
+        break;
+      case 'v':
+        if(verify_signature((argv[2]), argv[3]) == true)
+          std::cout << "The document is authentic\n";
+          else
+            std::cout << "The document is modified\n";
+      default:
+        return 0;
+    }
+
+
+  } catch(char const* err) {
+    std::cout << "The library threw an exception:\n"
+      << err << std::endl;
   }
 
-  return 0;
 }
