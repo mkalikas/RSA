@@ -35,8 +35,8 @@ $(library-objects): $(library-headers)
 # your own Makefile.
 
 # Components of the program.
-program = rsa435
-program-objects = rsa435.o
+program = main
+program-objects = main.o
 
 # Conservatively assume all the program source files depend on all the library
 # headers.  You can change this if it is not the case.
